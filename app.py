@@ -91,3 +91,6 @@ def showDominan(colors_hex):
 </html>
 '''
     st.write(html_col, unsafe_allow_html=True)
+
+showHTML(False)
+uploadFile()
