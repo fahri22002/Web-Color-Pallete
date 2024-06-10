@@ -52,6 +52,7 @@ def showHTML(colors_hex):
     st.write(html_content, unsafe_allow_html=True)
 
 def uploadFile():
+    global temp_file
     # File uploader widget
     uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
 
