@@ -87,7 +87,7 @@ def showDominan(colors_hex):
 </div>
 {'<h2 style="color: ' + colors_hex[1] + ';">Uploaded Image</h2>' if colors_hex else ''}
 <div class="img" style="background-color: {colors_hex[4]};">
-    <img src="file:///{temp_file}" alt="Uploaded Image">
+    <img src="{temp_file}" alt="Uploaded Image">
 </body>
 </html>
 '''
