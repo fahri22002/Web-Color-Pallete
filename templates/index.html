@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Analyze Image</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body style="{% if colors %}background-color: {{ colors[0] }};{% else %}background-color: #777777{% endif %}">
+    <div class="form-inp">
+        <h1>Upload and Analyze Image</h1>
+        <form method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" class="upfile">
+            <button type="submit" class="upbutton">Upload</button>
+        </form>
+
+    </div>
+    {% if colors %}
+        <h2 style="color: {{ colors[1] }};">Dominant Colors</h2>
+        <div class="palette">
+            {% for color in colors %}
+                <div class="color-box" style="background-color: {{ color }};"></div>
+            {% endfor %}
+        </div>
+        <h2 style="color: {{ colors[1] }};">Uploaded Image</h2>
+        <div class="img" style="background-color: {{ colors[4] }};">
+            <img src="{{ image_url }}" alt="Uploaded Image">
+        </div>
+    {% endif %}
+</body>
+</html>
