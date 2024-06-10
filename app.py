@@ -29,7 +29,7 @@ def clear_upload_folder(upload_folder):
 
 # Define the upload folder
 UPLOAD_FOLDER = 'static/uploads/'
-
+temp_file = ''
 # Ensure the upload folder exists
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
