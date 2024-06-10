@@ -45,17 +45,63 @@ def showHTML(colors_hex):
     <title>Upload and Analyze Image</title>
     <link rel="stylesheet" href="./static/style.css">
 </head>
-<body style="{'' if colors_hex else 'background-color: #777777;'}">
-    <div class="form-inp">
-        <h1>Upload and Analyze Image</h1>
+<body style="{'' if colors_hex else 'background-color: #777777;'} text-align: center;">
+    <div class="form-inp" style="text-align: center;">
+        
 '''
     st.write(html_content, unsafe_allow_html=True)
+    st.markdown(
+        """
+        <head>
+            <style>
+                [data-testid="stFileUploader"]{
+                    background-color: #fefe;
+                    border-radius: 20px;
+                    text-align: center;
+                    justify-items: center;
+                    display: block;
+                }
+                [data-testid="stWidgetLabel"]{
+                    text-align: center;
+                    justify-items: center;
+                }
+                [data-testid="stMarkdownContainer"]{
+                    text-align: center;
+                    justify-items: center;
+                    display: block;
+                    
+                }
+            </style>
+        </head>
+        """,
+        unsafe_allow_html=True
+    )
+    
 
 def uploadFile():
     global temp_file
     # File uploader widget
-    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+    uploaded_file = st.file_uploader("Upload and Analyze Image", type=["jpg", "jpeg", "png"])
+    st.markdown(
+        """
+        <head>
+            <style>
+                [data-testid="stFileUploader"] p{
+                    font-family: "Source Sans Pro", sans-serif;
+    font-weight: 600;
+    padding: 1rem 0px;
+    line-height: 1.2;
+    font-size: calc(1.35rem + 1.2vw);
+    display: block;
+    text-align: center;
+    margin-left: 40px;
 
+                }
+            </style>
+        </head>
+        """,
+        unsafe_allow_html=True
+    )
     if uploaded_file is not None:
         # Clear the upload folder
         clear_upload_folder(UPLOAD_FOLDER)
@@ -72,7 +118,7 @@ def uploadFile():
         colors = get_dominant_colors(image)
         # Convert colors to hex format for HTML display
         colors_hex = ['#{:02x}{:02x}{:02x}'.format(int(color[2]), int(color[1]), int(color[0])) for color in colors]
-        showHTML(colors_hex)
+        # showHTML(colors_hex)
         showDominan(colors_hex)
     
     # Display the uploaded image
@@ -80,18 +126,42 @@ def uploadFile():
 
 def showDominan(colors_hex):
     html_col = f'''
+</div style="text-align: center;">
+{'<h2 style="color: ' + colors_hex[1] + '; text-align: center; text-shadow: -1px -1px 0 #000,   1px -1px 0 #000,-1px  1px 0 #000, 1px  1px 0 #000;">Dominant Colors</h2>' if colors_hex else ''}
+<div class="palette" style="display: flex; justify-content: center; background-color: #e9e9e9;
+    width: 450px;
+    margin: auto;
+    height: 140px;
+    padding: 30px;
+    border-radius: 20px; text-align: center">
+    {"".join(f'<div style="justify-items: center;"><div class="color-box" style="background-color: {color};width: 70px;height: 70px;margin: 0 5px;border: 1px solid #000;"></div><div style="color: {color};font-weight: bold;  text-shadow: -1px -1px 0 #000,   1px -1px 0 #000,-1px  1px 0 #000, 1px  1px 0 #000;">{color}</div></div>' for color in colors_hex)}
 </div>
-{'<h2 style="color: ' + colors_hex[1] + ';">Dominant Colors</h2>' if colors_hex else ''}
-<div class="palette">
-    {"".join(f'<div class="color-box" style="background-color: {color};width: 70px;height: 70px;margin: 0 5px;border: 1px solid #000;"></div>' for color in colors_hex)}
+{'<h2 style="color: ' + colors_hex[1] + ';text-align: center;text-shadow: -1px -1px 0 #000,   1px -1px 0 #000,-1px  1px 0 #000, 1px  1px 0 #000;">Uploaded Image</h2>' if colors_hex else ''}
+<div class="img" >'''
+    st.write(html_col, unsafe_allow_html=True)
+    st.image(temp_file, use_column_width=True)
+    html_col = f'''
 </div>
-{'<h2 style="color: ' + colors_hex[1] + ';">Uploaded Image</h2>' if colors_hex else ''}
-<div class="img" style="background-color: {colors_hex[4]};">
-    <img src="./{temp_file}" alt="Uploaded Image">
 </body>
 </html>
 '''
     st.write(html_col, unsafe_allow_html=True)
-
+    st.markdown(
+        f"""
+        <head>
+            <style>
+                [data-testid="stApp"]{{
+                    background-color: {colors_hex[0]};
+                }}
+                .st-emotion-cache-1v0mbdj{{
+                    background-color: {colors_hex[4]};
+                    border: 10px solid {colors_hex[4]};
+                }}
+            </style>
+        </head>
+        """,
+        unsafe_allow_html=True
+    )
+    
 showHTML(False)
 uploadFile()
