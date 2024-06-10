@@ -34,30 +34,7 @@ UPLOAD_FOLDER = 'static/uploads/'
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
 
-# File uploader widget
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    # Clear the upload folder
-    clear_upload_folder(UPLOAD_FOLDER)
-
-    # Save uploaded file to a temporary location
-    temp_file = os.path.join(UPLOAD_FOLDER, uploaded_file.name)
-    with open(temp_file, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    # Read the image
-    image = cv2.imread(temp_file)
-    
-    # Get dominant colors
-    colors = get_dominant_colors(image)
-    
-    # Convert colors to hex format for HTML display
-    colors_hex = ['#{:02x}{:02x}{:02x}'.format(int(color[2]), int(color[1]), int(color[0])) for color in colors]
-    
-    # Display the uploaded image
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-    
+def showHTML(colors_hex):
     # Display the dominant colors
     html_content = f'''
 <!DOCTYPE html>
@@ -66,25 +43,51 @@ if uploaded_file is not None:
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upload and Analyze Image</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="./static/style.css">
 </head>
 <body style="{'' if colors_hex else 'background-color: #777777;'}">
     <div class="form-inp">
         <h1>Upload and Analyze Image</h1>
-        <form method="POST" enctype="multipart/form-data">
-            <input type="file" name="file" class="upfile">
-            <button type="submit" class="upbutton">Upload</button>
-        </form>
+'''
+    st.write(html_content, unsafe_allow_html=True)
 
-    </div>
-    {'<h2 style="color: ' + colors_hex[1] + ';">Dominant Colors</h2>' if colors_hex else ''}
-    <div class="palette">
-        {"".join(f'<div class="color-box" style="background-color: {color};"></div>' for color in colors_hex)}
-    </div>
-    {'<h2 style="color: ' + colors_hex[1] + ';">Uploaded Image</h2>' if colors_hex else ''}
-    <div class="img" style="background-color: {colors_hex[4]};">
-        <img src="file:///{temp_file}" alt="Uploaded Image">
+def uploadFile():
+    # File uploader widget
+    uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
+
+    if uploaded_file is not None:
+        # Clear the upload folder
+        clear_upload_folder(UPLOAD_FOLDER)
+
+        # Save uploaded file to a temporary location
+        temp_file = os.path.join(UPLOAD_FOLDER, uploaded_file.name)
+        with open(temp_file, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+
+        # Read the image
+        image = cv2.imread(temp_file)
+        
+        # Get dominant colors
+        colors = get_dominant_colors(image)
+        # Convert colors to hex format for HTML display
+        colors_hex = ['#{:02x}{:02x}{:02x}'.format(int(color[2]), int(color[1]), int(color[0])) for color in colors]
+        showHTML(colors_hex)
+        showDominan(colors_hex)
+    
+    # Display the uploaded image
+    # st.image(image, caption='Uploaded Image', use_column_width=True)
+
+def showDominan(colors_hex):
+    html_col = f'''
+</div>
+{'<h2 style="color: ' + colors_hex[1] + ';">Dominant Colors</h2>' if colors_hex else ''}
+<div class="palette">
+    {"".join(f'<div class="color-box" style="background-color: {color};"></div>' for color in colors_hex)}
+</div>
+{'<h2 style="color: ' + colors_hex[1] + ';">Uploaded Image</h2>' if colors_hex else ''}
+<div class="img" style="background-color: {colors_hex[4]};">
+    <img src="file:///{temp_file}" alt="Uploaded Image">
 </body>
 </html>
 '''
-    st.write(html_content, unsafe_allow_html=True)
+    st.write(html_col, unsafe_allow_html=True)
