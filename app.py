@@ -83,11 +83,7 @@ def showDominan(colors_hex):
 </div>
 {'<h2 style="color: ' + colors_hex[1] + ';">Dominant Colors</h2>' if colors_hex else ''}
 <div class="palette">
-    {"".join(f'<div class="color-box" style="background-color: {color};
-    width: 70px;
-    height: 70px;
-    margin: 0 5px;
-    border: 1px solid #000;"></div>' for color in colors_hex)}
+    {"".join(f'<div class="color-box" style="background-color: {color};width: 70px;height: 70px;margin: 0 5px;border: 1px solid #000;"></div>' for color in colors_hex)}
 </div>
 {'<h2 style="color: ' + colors_hex[1] + ';">Uploaded Image</h2>' if colors_hex else ''}
 <div class="img" style="background-color: {colors_hex[4]};">
