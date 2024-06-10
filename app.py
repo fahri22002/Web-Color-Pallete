@@ -1,8 +1,16 @@
 import streamlit as st
+from flask import Flask, render_template, request, redirect, url_for
 import cv2
 import numpy as np
 from sklearn.cluster import KMeans
 import os
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = 'static/uploads/'
+
+# Pastikan folder upload ada
+if not os.path.exists(app.config['UPLOAD_FOLDER']):
+    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 def get_dominant_colors(image, k=5):
     # Resize gambar untuk mempercepat proses clustering
@@ -18,46 +26,37 @@ def get_dominant_colors(image, k=5):
     colors = kmeans.cluster_centers_
     return colors
 
-def clear_upload_folder(upload_folder):
-    for filename in os.listdir(upload_folder):
-        file_path = os.path.join(upload_folder, filename)
+def clear_upload_folder():
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         if os.path.isfile(file_path):
             os.unlink(file_path)
 
-st.title("Image Processing with Streamlit")
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        clear_upload_folder()
+        # Simpan file yang diunggah
+        file = request.files['file']
+        filename = file.filename
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        file.save(filepath)
+        
+        # Baca gambar
+        image = cv2.imread(filepath)
+        
+        # Dapatkan warna dominan
+        colors = get_dominant_colors(image)
+        
+        # Konversi warna ke format yang dapat ditampilkan di HTML
+        colors_hex = ['#{:02x}{:02x}{:02x}'.format(int(color[2]), int(color[1]), int(color[0])) for color in colors]
+        
+        # Buat jalur URL untuk gambar yang diunggah
+        image_url = url_for('static', filename=f'uploads/{filename}')
+        
+        return render_template('index.html', colors=colors_hex, image_url=image_url)
+    return render_template('index.html')
 
-upload_folder = 'static/uploads/'
 
-# Pastikan folder upload ada
-if not os.path.exists(upload_folder):
-    os.makedirs(upload_folder)
-
-# File uploader widget
-uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    # Save uploaded file to the upload folder
-    file_path = os.path.join(upload_folder, uploaded_file.name)
-    with open(file_path, "wb") as f:
-        f.write(uploaded_file.getbuffer())
-
-    # Baca gambar
-    image = cv2.imread(file_path)
-    
-    # Dapatkan warna dominan
-    colors = get_dominant_colors(image)
-    
-    # Konversi warna ke format yang dapat ditampilkan di HTML
-    colors_hex = ['#{:02x}{:02x}{:02x}'.format(int(color[2]), int(color[1]), int(color[0])) for color in colors]
-    
-    # Tampilkan gambar yang diunggah
-    st.image(image, caption='Uploaded Image', use_column_width=True)
-    
-    # Tampilkan warna dominan
-    st.write("Dominant Colors:")
-    for color in colors_hex:
-        st.write(color)
-        st.markdown(f"<div style='width: 50px; height: 50px; background-color: {color};'></div>", unsafe_allow_html=True)
-
-# Clear the upload folder (optional, depends on your use case)
-# clear_upload_folder(upload_folder)
+if __name__ == '__main__':
+    app.run(debug=True)
